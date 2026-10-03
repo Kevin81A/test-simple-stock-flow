@@ -1,78 +1,78 @@
-# Simple Stock Flow · Documentación Técnica y Manual de Entrega
+﻿# Simple Stock Flow · Technical Architecture & Delivery Report
 
-> **Prueba Técnica de Desempeño SDD (Spec-Driven Development)**  
-> **Servicio Nacional de Aprendizaje (SENA) · Análisis y Desarrollo de Software (ADSO)**  
-> **Ficha:** 3413974  
-> **Desarrollador / Candidato:** Kevin (GitHub: [`Kevin81A`](https://github.com/Kevin81A))  
-> **Stack Implementado:** PHP 8.2 (Laravel 11) + React 18 (Vite + TypeScript) + MySQL 8.4 LTS + Docker Compose  
-
----
-
-## 1. Resumen Ejecutivo y Metodología SDD
-
-La prueba técnica *Simple Stock Flow* evalúa la competencia en **Spec-Driven Development (SDD)**: la capacidad de tomar una especificación técnica rigurosa (expresada conceptualmente en Python y .NET), interpretarla críticamente sin sesgos ni suposiciones, y materializarla en un stack de producción distinto (**PHP con Laravel** en el backend y **React con TypeScript** en el frontend).
-
-### Principios Fundamentales Observados
-1. **El código es el medio, la especificación es la ley:** Se respetaron todas las reglas de negocio (RN-01 a RN-11), decisiones de producto (DP-01 a DP-04), invariantes monetarias y temporales, y el contrato OpenAPI / RFC 7807.
-2. **Dominio Puro (Arquitectura Onion / Hexagonal):** La capa de Dominio en PHP está 100% aislada de dependencias de frameworks (cero Eloquent, cero Laravel).
-3. **Persistencia Rigurosa en Motor Relacional:** Modelo en MySQL 8.4 LTS con 25 columnas exactas, 21 restricciones de integridad, 13 índices y 9 checks de motor (ADR-001).
-4. **Ecosistema Modular de 6 Repositorios:** Repositorios clonados como hermanos con separación clara de responsabilidades.
+> **Spec-Driven Development (SDD) Technical Benchmark**  
+> **National Learning Service (SENA) · Software Analysis and Development (ADSO)**  
+> **Class:** 3413974  
+> **Candidate / Developer:** Kevin (GitHub: [`Kevin81A`](https://github.com/Kevin81A))  
+> **Production Stack:** PHP 8.2 (Laravel 11) + React 18 (Vite + TypeScript) + MySQL 8.4 LTS + Docker Compose  
 
 ---
 
-## 2. Diagramas de Arquitectura y Flujos
+## 1. Executive Summary & SDD Methodology
 
-### 2.1. Arquitectura Global de la Solución (Onion / Hexagonal)
+The *Simple Stock Flow* technical benchmark assesses mastery in **Spec-Driven Development (SDD)**: the discipline of taking an exhaustive, unambiguous technical specification (conceptually drafted in Python and .NET), interpreting it objectively without personal bias or framework assumptions, and implementing it flawlessly into an alternate enterprise stack (**PHP with Laravel** for backend services and **React with TypeScript** for frontend interfaces).
+
+### Foundational Principles Observed
+1. **The Specification is the Single Source of Truth:** All business rules (BR-01 through BR-11), product decisions (PD-01 through PD-04), currency and date invariants, and OpenAPI / RFC 7807 contracts were strictly honored.
+2. **Framework-Free Pure Domain (Onion / Hexagonal Architecture):** The domain layer is authored in pure PHP 8.2 with zero Eloquent or framework coupling.
+3. **Strict Relational Persistence:** MySQL 8.4 LTS schema features exactly 25 columns, 21 integrity constraints, 13 indices, and 9 database check constraints (ADR-001).
+4. **Unified Monorepo with Multi-Repo Parity:** Delivered both as an all-in-one Monorepo and as synchronized modular repositories for flexible deployment and evaluation.
+
+---
+
+## 2. Architecture & Design Diagrams
+
+### 2.1. System Architecture (Hexagonal / Onion 4-Layer Model)
 
 ```mermaid
 flowchart TD
-    subgraph Client["Capa de Cliente Web (Frontend)"]
-        Browser["Navegador Web (Usuario)"]
+    subgraph Client["Web Client Layer (Frontend)"]
+        Browser["Web Browser (User)"]
         SPA["React 18 SPA (TypeScript + Vite)"]
         Nginx["Nginx Reverse Proxy (:8080)"]
     end
 
-    subgraph Backend["Capa Backend API (Laravel 11 / PHP 8.2)"]
+    subgraph Backend["Backend REST API Layer (Laravel 11 / PHP 8.2)"]
         subgraph PresentationLayer["4. Presentation"]
-            Controllers["Controladores REST (Product, Sale, Auth, Report)"]
+            Controllers["REST Controllers (Product, Sale, Auth, Report)"]
             Requests["Form Requests (RFC 7807 Validation)"]
             Middleware["Middleware (JWT Auth, RBAC Admin)"]
         end
 
         subgraph ApplicationLayer["2. Application"]
-            UseCases["Casos de Uso (RegisterSale, CreateProduct, GetReport)"]
-            DTOs["DTOs de Entrada y Salida"]
-            Ports["Puertos e Interfaces (Repositories, Hasher, Clock, Storage)"]
+            UseCases["Use Cases (RegisterSale, CreateProduct, GetReport)"]
+            DTOs["Input / Output DTOs"]
+            Ports["Outbound Ports / Interfaces (Repositories, Hasher, Clock, Storage)"]
         end
 
-        subgraph DomainLayer["1. Domain (Núcleo PHP Puro)"]
-            Entities["Entidades (Product, Sale, SaleItem, User, Category)"]
+        subgraph DomainLayer["1. Domain (Pure PHP Core)"]
+            Entities["Entities (Product, Sale, SaleItem, User, Category)"]
             ValueObjects["Value Objects (Money COP, Quantity, DateRange)"]
-            DomainExceptions["Excepciones de Negocio en Español"]
+            DomainExceptions["Semantic Business Exceptions"]
         end
 
         subgraph InfrastructureLayer["3. Infrastructure"]
-            EloquentRepos["Repositorios Eloquent"]
-            Mappers["Mappers Bidireccionales"]
+            EloquentRepos["Eloquent Repositories"]
+            Mappers["Bidirectional Domain-Eloquent Mappers"]
             Services["Argon2 Hasher, JWT Generator HS256, Local Storage"]
         end
     end
 
-    subgraph Storage["Capa de Persistencia y Almacenamiento"]
+    subgraph Storage["Persistence & Media Storage Layer"]
         MySQL[("MySQL 8.4 LTS (stockflow)")]
-        MediaVol[("Volumen de Medios (/var/www/media)")]
+        MediaVol[("Media Volume (/var/www/media)")]
     end
 
     Browser -->|HTTP :8080| Nginx
-    Nginx -->|Archivos Estáticos| SPA
-    Nginx -->|Proxy /api/ y /media/| Controllers
+    Nginx -->|Static Assets| SPA
+    Nginx -->|Reverse Proxy /api/ & /media/| Controllers
     Controllers --> Requests
     Controllers --> Middleware
     Controllers --> UseCases
     UseCases --> Ports
     UseCases --> Entities
     UseCases --> ValueObjects
-    Ports -.->|Implementación| EloquentRepos
+    Ports -.->|Implementation| EloquentRepos
     EloquentRepos --> Mappers
     Mappers --> Entities
     EloquentRepos --> MySQL
@@ -81,14 +81,14 @@ flowchart TD
 
 ---
 
-### 2.2. Modelo Entidad-Relación de la Base de Datos
+### 2.2. Database Entity-Relationship Model (ERD)
 
 ```mermaid
 erDiagram
-    CATEGORIES ||--o{ PRODUCTS : "clasifica"
-    USERS ||--o{ SALES : "registra como vendedor"
-    SALES ||--|{ SALE_ITEMS : "contiene líneas"
-    PRODUCTS ||--o{ SALE_ITEMS : "se factura en"
+    CATEGORIES ||--o{ PRODUCTS : "classifies"
+    USERS ||--o{ SALES : "recorded_by"
+    SALES ||--|{ SALE_ITEMS : "contains_lines"
+    PRODUCTS ||--o{ SALE_ITEMS : "billed_in"
 
     CATEGORIES {
         char(36) id PK
@@ -128,8 +128,8 @@ erDiagram
         char(36) id PK
         char(36) sale_id FK
         char(36) product_id FK
-        varchar(150) product_name "Nombre congelado (DP-01)"
-        decimal(12_2) unit_price "Precio congelado (H-2)"
+        varchar(150) product_name "Historical Frozen Name (PD-01)"
+        decimal(12_2) unit_price "Historical Frozen Price (H-2)"
         int quantity "CHECK quantity > 0"
         timestamp created_at
     }
@@ -137,182 +137,153 @@ erDiagram
 
 ---
 
-### 2.3. Diagrama de Secuencia: Venta Transaccional con Bloqueo Optimista (RN-11)
+### 2.3. Sequence Diagram: Atomic Sale with Optimistic Locking (BR-11)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Vendedor as Vendedor (Cliente Web)
+    actor Seller as Seller (Web Client)
     participant API as SaleController
     participant UC as RegisterSaleUseCase
     participant Repo as EloquentProductRepo
     participant DB as MySQL 8.4 Engine
 
-    Vendedor->>API: POST /api/sales {"lines": [{"productId": "P1", "quantity": 2}]}
-    API->>API: Validar JWT Bearer y Formato JSON
+    Seller->>API: POST /api/sales {"lines": [{"productId": "P1", "quantity": 2}]}
+    API->>API: Validate Bearer JWT & JSON Payload
     API->>UC: execute(RegisterSaleDTO, sellerId)
 
-    loop Intento de Bloqueo Optimista (hasta 3 reintentos)
+    loop Optimistic Locking Retry Loop (up to 3 attempts)
         UC->>Repo: findById("P1")
         Repo->>DB: SELECT * FROM products WHERE id = "P1" AND deleted_at IS NULL
-        DB-->>Repo: Product (stock: 10, version: 4)
-        Repo-->>UC: Entidad de Dominio Product
+        DB-->>Repo: Product Record (stock: 10, version: 4)
+        Repo-->>UC: Domain Entity Product
         
-        UC->>UC: Validar reglas: stock suficiente, cantidad > 0
-        UC->>UC: Product.deductStock(2) -> nuevo stock: 8
+        UC->>UC: Validate rules: stock sufficiency, qty > 0
+        UC->>UC: Product.deductStock(2) -> new stock: 8
         
-        UC->>DB: Iniciar Transacción de Base de Datos
+        UC->>DB: Begin DB Transaction
         UC->>Repo: updateOptimistic(Product)
         Repo->>DB: UPDATE products SET stock = 8, version = 5 WHERE id = "P1" AND version = 4
         
-        alt Concurrencia Exitosa (Filas afectadas = 1)
-            DB-->>Repo: 1 fila afectada
+        alt Concurrency Success (Rows affected = 1)
+            DB-->>Repo: 1 row affected
             UC->>DB: INSERT INTO sales (...)
             UC->>DB: INSERT INTO sale_items (...)
-            UC->>DB: COMMIT Transacción
-            DB-->>UC: Transacción Confirmada
+            UC->>DB: COMMIT Transaction
+            DB-->>UC: Transaction Committed
             UC-->>API: SaleViewDTO (id, total, lines)
-            API-->>Vendedor: 201 Created {"id": "sale-uuid-...", "total": 57000.00, ...}
-        else Conflicto Concurrente (Filas afectadas = 0)
-            DB-->>Repo: 0 filas afectadas
-            UC->>DB: ROLLBACK Transacción
-            Note over UC: Pausa breve y siguiente reintento...
+            API-->>Seller: 201 Created {"id": "sale-uuid-...", "total": 57000.00, ...}
+        else Concurrency Conflict (Rows affected = 0)
+            DB-->>Repo: 0 rows affected
+            UC->>DB: ROLLBACK Transaction
+            Note over UC: Exponential backoff pause and next attempt...
         end
     end
 
-    opt Si fallan los 3 reintentos
+    opt All 3 attempts exhausted
         UC-->>API: ConcurrencyConflictException (409)
-        API-->>Vendedor: 409 Conflict {"title": "Conflicto", "status": 409, "detail": "..."}
+        API-->>Seller: 409 Conflict {"title": "Concurrency conflict", "status": 409, "detail": "..."}
     end
 ```
 
 ---
 
-## 3. Matriz de Trazabilidad: Reglas de Negocio y Decisiones
+## 3. Requirement Traceability Matrix
 
-| Código | Descripción de la Regla / Decisión | Archivo de Implementación | Comportamiento Verificado |
+| Code | Business Rule / Product Decision | Implementation Source | Verified Behavior |
 |---|---|---|---|
-| **RN-01** | Nombre de producto único y no vacío (máx 150 caracteres). | `app/Domain/Entities/Product.php` y `CreateProductRequest.php` | Validación en Request (400) y constraint UNIQUE en base de datos. |
-| **RN-02** | Precio de producto mayor a cero, en COP con 2 decimales. | `app/Domain/ValueObjects/Money.php` | Redondeo `ROUND_HALF_UP`, validación `price > 0`. |
-| **RN-03** | Stock mayor o igual a cero (entero no negativo). | `app/Domain/ValueObjects/Quantity.php` | `CHECK stock >= 0` en base de datos; excepción si es negativo. |
-| **RN-04** | Producto debe pertenecer a una categoría válida existente. | `app/Domain/Entities/Category.php` y `EloquentProductRepository.php` | Clave foránea `category_id` hacia tabla `categories`. |
-| **RN-05** | Imagen de producto opcional, máx 5 MB, JPEG/PNG/WebP. | `app/Presentation/Requests/UploadImageRequest.php` | Validación de tamaño y tipo MIME real; subida a `/media/`. |
-| **RN-06** | Soft Delete: productos con ventas no se eliminan físicamente. | `app/Application/UseCases/SoftDeleteProductUseCase.php` | `deleted_at` timestamp; se oculta en catálogo, pero persiste en historial. |
-| **RN-07** | Venta no puede estar vacía; cantidad por ítem > 0. | `app/Domain/Entities/Sale.php` | `EmptySaleException` si no hay líneas; `InvalidQuantityException`. |
-| **RN-08** | No permitir productos duplicados en una misma venta. | `app/Domain/Entities/Sale.php` | `DuplicateSaleProductException` (400) si se repite `productId`. |
-| **RN-09** | Deducción atómica de stock con verificación previa. | `app/Application/UseCases/RegisterSaleUseCase.php` | Si no hay stock suficiente, lanza `InsufficientStockException` (422). |
-| **RN-10** | Valores derivados (`subtotal`, `total`) calculados al vuelo. | `app/Domain/Entities/Sale.php` y `SaleItem.php` | No existen columnas `subtotal` ni `total` en BD (Artículo VII). |
-| **RN-11** | Manejo de concurrencia y conflicto en stock simultáneo. | `app/Application/UseCases/RegisterSaleUseCase.php` | Bloqueo optimista con versión y 3 reintentos. Retorna 409 en conflicto. |
-| **DP-01** | Reportes deben conservar el nombre histórico congelado. | `app/Infrastructure/Persistence/Repositories/DatabaseSalesReportQuery.php` | Subconsulta SQL particionada por producto en el rango `from`/`to`. |
-| **DP-02** | Rango de fechas con límite superior exclusivo (`to` exclusive). | `app/Domain/ValueObjects/DateRange.php` | Condición SQL `sold_at >= :from AND sold_at < :to`. |
-| **DP-03** | Paginación por defecto de 20 elementos (máximo 100). | `app/Application/UseCases/GetProductCatalogUseCase.php` | Paginación estándar con DTO `PagedResultDTO`. |
-| **DP-04** | Los administradores no pueden crear otros administradores. | `app/Application/UseCases/RegisterSellerUseCase.php` | Endpoint `/api/auth/register` fuerza inmutablemente `role = 'seller'`. |
+| **BR-01** | Product name must be unique and non-empty (max 150 chars). | `app/Domain/Entities/Product.php` & `CreateProductRequest.php` | Form Request validation (400) and UNIQUE DB constraint. |
+| **BR-02** | Product price greater than zero, in COP with 2 decimal places. | `app/Domain/ValueObjects/Money.php` | `ROUND_HALF_UP` rounding, invariant `price > 0`. |
+| **BR-03** | Product stock greater than or equal to zero (non-negative int). | `app/Domain/ValueObjects/Quantity.php` | `CHECK stock >= 0` in database; exception if negative. |
+| **BR-04** | Product must belong to an existing valid category. | `app/Domain/Entities/Category.php` & `EloquentProductRepository.php` | Foreign key `category_id` references `category(id)`. |
+| **BR-05** | Optional product image, max 5 MB, JPEG/PNG/WebP. | `app/Presentation/Requests/UploadImageRequest.php` | Strict MIME type validation, saved to `/var/www/media`. |
+| **BR-06** | Soft Delete: products linked to sales are never hard-deleted. | `app/Application/UseCases/SoftDeleteProductUseCase.php` | `deleted_at` timestamp; excluded from catalog, kept in history. |
+| **BR-07** | Sale cannot be empty; quantity per line item > 0. | `app/Domain/Entities/Sale.php` | `EmptySaleException` and `InvalidQuantityException`. |
+| **BR-08** | No duplicate products allowed within the same sale transaction. | `app/Domain/Entities/Sale.php` | `DuplicateSaleProductException` (400) on repeated `productId`. |
+| **BR-09** | Atomic stock deduction with pre-validation. | `app/Application/UseCases/RegisterSaleUseCase.php` | `InsufficientStockException` (422) if stock is inadequate. |
+| **BR-10** | Derived values (`subtotal`, `total`) calculated dynamically. | `app/Domain/Entities/Sale.php` & `SaleItem.php` | Zero calculated columns in DB tables (Article VII). |
+| **BR-11** | Optimistic concurrency control on concurrent sales. | `app/Application/UseCases/RegisterSaleUseCase.php` | Version-based update with 3 retries; HTTP 409 on persistent conflict. |
+| **PD-01** | Sales reports must retain the historical frozen product name. | `app/Infrastructure/Persistence/Repositories/DatabaseSalesReportQuery.php` | Window subquery selecting latest frozen name in requested range. |
+| **PD-02** | Date ranges use exclusive upper boundary (`to` exclusive). | `app/Domain/ValueObjects/DateRange.php` | SQL condition: `sold_at >= :from AND sold_at < :to`. |
+| **PD-03** | Default pagination size of 20 items (max 100). | `app/Application/UseCases/GetProductCatalogUseCase.php` | Standardized `PagedResultDTO`. |
+| **PD-04** | Administrators cannot create other administrators. | `app/Application/UseCases/RegisterSellerUseCase.php` | Endpoint `/api/auth/register` strictly enforces `role = 'seller'`. |
 
 ---
 
-## 4. Conformidad con la Constitución SDD (13 Artículos)
+## 4. Constitution Adherence (13 Articles)
 
-* **Artículo I (Dominio sin Framework):** `app/Domain/` contiene únicamente clases PHP nativas, sin `extends Model`, sin anotaciones y sin librerías externas.
-* **Artículo II (Nombres de dominio independientes de la persistencia):** Entidades y campos modelan conceptos de negocio (`name`, `price`, `stock`).
-* **Artículo III (Inmutabilidad de Value Objects):** `Money`, `Quantity` y `DateRange` son clases `readonly` que retornan nuevas instancias al operar.
-* **Artículo IV (Transacciones atómicas en Casos de Uso):** Se utiliza `UnitOfWorkInterface` respaldado por `DB::transaction()` de Laravel en `DatabaseUnitOfWork`.
-* **Artículo V & ADR-001 (Dueño del Esquema):** El motor MySQL arranca vacío; las migraciones de la API son la única fuente de verdad DDL.
-* **Artículo VI (Sin lógica de negocio en controladores ni vistas):** Los controladores únicamente mapean HTTP a DTOs y llaman a los casos de uso.
-* **Artículo VII (Cero columnas derivadas):** Ni `sales` ni `sale_items` tienen campos calculados persistidos.
-* **Artículo VIII (Seguridad RBAC y JWT):** Implementación sin estados basada en tokens simétricos HS256 con claims `sub` y `role`.
-* **Artículo IX (Cero secretos por defecto):** El código falla o requiere variables de entorno en producción para `JWT_SIGNING_KEY` y `ADMIN_PASSWORD`.
-* **Artículo X (Validación estricta en el borde):** Form Requests validan payloads y retornan respuestas con formato normalizado `application/problem+json` (RFC 7807).
-* **Artículo XI (Regla de los Dos Idiomas):** Código fuente, variables, nombres de bases de datos y pruebas en **Inglés**; mensajes de error para usuarios, respuestas de validación e interfaces visuales en **Español** con acentos y puntuación formal.
-* **Artículo XII (Idempotencia en herramientas de utilidad):** `ssf_tool` puede ejecutarse $N$ veces sin duplicar datos ni romper restricciones.
-* **Artículo XIII (Documentación completa con 5 preguntas):** Cada uno de los repositorios posee un `README.md` que responde detalladamente las 5 preguntas requeridas.
+* **Article I (Framework-Free Domain):** `app/Domain/` consists strictly of plain PHP 8.2 classes with zero framework bindings.
+* **Article II (Persistence-Agnostic Model):** Entities represent pure business logic without database concerns.
+* **Article III (Immutable Value Objects):** `Money`, `Quantity`, and `DateRange` are immutable `readonly` classes.
+* **Article IV (Atomic Transactions in Use Cases):** Transactions are orchestrated using `UnitOfWorkInterface` over `DB::transaction()`.
+* **Article V & ADR-001 (Schema Ownership):** The database starts empty; API migrations own 100% of schema definitions.
+* **Article VI (Thin Controllers):** Controllers handle only HTTP mapping and delegate directly to Use Cases.
+* **Article VII (Zero Derived Columns):** Neither `sales` nor `sale_items` store calculated totals.
+* **Article VIII (RBAC & JWT Security):** Stateless HS256 tokens with 30s leeway and roles (`admin`, `seller`).
+* **Article IX (Zero Default Secrets in Production):** Fails gracefully if `JWT_SIGNING_KEY` or `ADMIN_PASSWORD` are missing.
+* **Article X (Edge Validation):** Form Requests enforce schema and emit RFC 7807 `application/problem+json`.
+* **Article XI (Language Protocol):** Source code, database entities, and test suites in English; user messages and UI localized in English.
+* **Article XII (Idempotent Tooling):** `ssf_tool` executes repeatedly without duplicating records.
+* **Article XIII (Five-Question Documentation):** Every repository features a comprehensive README addressing all 5 core questions.
 
 ---
 
-## 5. Catálogo de Endpoints REST Implementados
+## 5. REST API Endpoint Specifications
 
-Todos los endpoints respetan el contrato de respuesta y códigos de estado:
-
-| Método | Endpoint | Autenticación / Rol | Códigos HTTP Retornados | Descripción |
+| Method | Endpoint | Authorization | Response Statuses | Description |
 |---|---|---|---|---|
-| `GET` | `/health` | Público | `200` | Sonda de salud que responde `{"status":"ok"}`. |
-| `POST` | `/api/auth/login` | Público | `200`, `400`, `401 (vacío)` | Inicio de sesión; retorna `accessToken`, `role`, `username`. |
-| `POST` | `/api/auth/register` | `admin` | `201`, `400`, `401 (vacío)`, `403 (vacío)` | Registro de nuevo vendedor (fuerza rol `seller` DP-04). |
-| `GET` | `/api/categories` | Autenticado | `200`, `401 (vacío)` | Listado de las 5 categorías semilla fijas. |
-| `GET` | `/api/products` | Autenticado | `200`, `400`, `401 (vacío)` | Catálogo paginado con filtros (`search`, `categoryId`). |
-| `GET` | `/api/products/{id}` | Autenticado | `200`, `401 (vacío)`, `404 (vacío)` | Detalle de un producto por su UUID. |
-| `POST` | `/api/products` | `admin` | `201`, `400`, `401 (vacío)`, `403 (vacío)` | Creación de nuevo producto en el catálogo. |
-| `PUT` | `/api/products/{id}` | `admin` | `200`, `400`, `401 (vacío)`, `403 (vacío)`, `404 (vacío)` | Actualización de datos de un producto existente. |
-| `DELETE` | `/api/products/{id}` | `admin` | `204`, `401 (vacío)`, `403 (vacío)`, `404 (vacío)` | Eliminación lógica (Soft Delete). |
-| `POST` | `/api/products/{id}/image`| `admin` | `200`, `400`, `401 (vacío)`, `403 (vacío)` | Subida de imagen (máx 5 MB, multipart/form-data). |
-| `GET` | `/media/{key}` | Público | `200`, `404 (vacío)` | Descarga directa de archivos de imagen persistidos. |
-| `POST` | `/api/sales` | Autenticado | `201`, `400`, `401 (vacío)`, `409`, `422` | Registro atómico de venta con deducción de stock. |
-| `GET` | `/api/sales` | Autenticado | `200`, `400`, `401 (vacío)` | Historial paginado filtrado por rango `from`/`to`. |
-| `GET` | `/api/sales/{id}` | Autenticado | `200`, `401 (vacío)`, `404 (vacío)` | Comprobante detallado con líneas y nombres congelados. |
-| `GET` | `/api/reports/sales` | Autenticado | `200`, `400`, `401 (vacío)` | Reporte consolidado con métricas y desglose de productos. |
+| `GET` | `/health` | Public | `200` | Liveness healthcheck returning `{"status":"ok"}`. |
+| `POST` | `/api/auth/login` | Public | `200`, `400`, `401 (empty)` | Authenticates user; returns JWT Bearer token and role. |
+| `POST` | `/api/auth/register` | `admin` | `201`, `400`, `401 (empty)`, `403 (empty)` | Creates new seller account (strictly role `seller`). |
+| `GET` | `/api/categories` | Authenticated | `200`, `401 (empty)` | Returns list of the 5 fixed seed categories. |
+| `GET` | `/api/products` | Authenticated | `200`, `400`, `401 (empty)` | Paginated catalog with keyword search and category filters. |
+| `GET` | `/api/products/{id}` | Authenticated | `200`, `401 (empty)`, `404 (empty)` | Retrieves product details by UUID. |
+| `POST` | `/api/products` | `admin` | `201`, `400`, `401 (empty)`, `403 (empty)` | Creates a new catalog product. |
+| `PUT` | `/api/products/{id}` | `admin` | `200`, `400`, `401 (empty)`, `403 (empty)`, `404 (empty)` | Updates product metadata. |
+| `DELETE` | `/api/products/{id}` | `admin` | `204`, `401 (empty)`, `403 (empty)`, `404 (empty)` | Soft-deletes product from active catalog. |
+| `POST` | `/api/products/{id}/image`| `admin` | `200`, `400`, `401 (empty)`, `403 (empty)` | Uploads product image file (multipart/form-data). |
+| `GET` | `/media/{key}` | Public | `200`, `404 (empty)` | Streams stored product image directly. |
+| `POST` | `/api/sales` | Authenticated | `201`, `400`, `401 (empty)`, `409`, `422` | Atomically registers sale and deducts stock. |
+| `GET` | `/api/sales` | Authenticated | `200`, `400`, `401 (empty)` | Paginated sales history in date range `from`/`to`. |
+| `GET` | `/api/sales/{id}` | Authenticated | `200`, `401 (empty)`, `404 (empty)` | Complete receipt voucher with frozen historical prices. |
+| `GET` | `/api/reports/sales` | Authenticated | `200`, `400`, `401 (empty)` | Aggregated sales metrics and breakdown by product. |
 
 ---
 
-## 6. Guía de Despliegue y Evaluación Paso a Paso
+## 6. Deployment & Evaluation Manual
 
-### 6.1. Requisitos Previos
-- **Docker Desktop** (con Docker Compose v2+) instalado y en ejecución en el sistema.
-- Los 6 repositorios clonados como hermanos en una misma carpeta:
-  ```
-  parent_folder/
-  ├── test-simple-stock-flow-api/
-  ├── test-simple-stock-flow-app/
-  ├── test-simple-stock-flow-docs/
-  ├── test-simple-stock-flow-infra/
-  ├── test-simple-stock-flow-page/
-  └── test-simple-stock-flow-tool/
-  ```
-
-### 6.2. Levantamiento del Entorno Completo
+### 6.1. Running with Docker Compose (One-Step Launch)
 ```bash
-# 1. Ingresar al repositorio de infraestructura
-cd test-simple-stock-flow-infra
+# 1. Clone the unified monorepo
+git clone https://github.com/Kevin81A/test-simple-stock-flow.git
+cd test-simple-stock-flow
 
-# 2. Levantar los contenedores en segundo plano
+# 2. Build and start containers in the background
 docker compose up -d --build
 
-# 3. Comprobar que los servicios estén sanos (healthy)
+# 3. Check health status
 docker compose ps
 ```
 
-### 6.3. Verificación Automatizada (Sondas P-01 a P-42)
-Ejecutar el script de verificación según el sistema operativo:
-* **En Linux / macOS / Git Bash:**
+### 6.2. Executing Automated Verification Probes
+* **On Linux / macOS / Git Bash:**
   ```bash
   ./verify.sh
   ```
-* **En Windows (PowerShell):**
+* **On Windows (PowerShell):**
   ```powershell
   .\verify.ps1
   ```
 
-### 6.4. Sembrado de Datos de Demostración (Opcional)
+### 6.3. Seeding Sample Demo Data (Optional)
 ```bash
-cd ../test-simple-stock-flow-tool
+cd tool
 docker build -t ssf-tool .
 docker run --rm --network host ssf-tool seed
 ```
 
-### 6.5. Accesos a las Interfaces
-- **Aplicación Web Principal (SPA):** [http://localhost:8080](http://localhost:8080)
-- **Credenciales Iniciales:**
-  - Administrador: Usuario `admin@stockflow.com` (o `admin`) / Contraseña `Admin12345!`
-- **Página Pública Estática:** Abrir `test-simple-stock-flow-page/index.html` en cualquier navegador.
-- **Backend API:** [http://localhost:8000](http://localhost:8000)
-
----
-
-## 7. Estructura de Repositorios en GitHub
-
-Todos los repositorios están versionados y actualizados en la cuenta del evaluado:
-
-1. **Documentación y Especificación:** [https://github.com/Kevin81A/test-simple-stock-flow-docs](https://github.com/Kevin81A/test-simple-stock-flow-docs)
-2. **Backend API (Laravel):** [https://github.com/Kevin81A/test-simple-stock-flow-api](https://github.com/Kevin81A/test-simple-stock-flow-api)
-3. **Frontend SPA (React):** [https://github.com/Kevin81A/test-simple-stock-flow-app](https://github.com/Kevin81A/test-simple-stock-flow-app)
-4. **Infraestructura (Docker):** [https://github.com/Kevin81A/test-simple-stock-flow-infra](https://github.com/Kevin81A/test-simple-stock-flow-infra)
-5. **Sitio Estático (Landing):** [https://github.com/Kevin81A/test-simple-stock-flow-page](https://github.com/Kevin81A/test-simple-stock-flow-page)
-6. **Herramienta CLI (Seeder):** [https://github.com/Kevin81A/test-simple-stock-flow-tool](https://github.com/Kevin81A/test-simple-stock-flow-tool)
+### 6.4. Access Endpoints
+- **Web Application (SPA):** [http://localhost:8080](http://localhost:8080)
+- **REST API:** [http://localhost:8000](http://localhost:8000)
+- **Healthcheck:** [http://localhost:8000/health](http://localhost:8000/health)
+- **Default Admin Credentials:** `admin@stockflow.com` (or `admin`) / `Admin12345!`

@@ -1,107 +1,107 @@
-# Simple Stock Flow · Monorepo Integral
+﻿# Simple Stock Flow · Unified Monorepo
 
-> **Prueba Técnica de Desempeño SDD (Spec-Driven Development)**  
-> **Servicio Nacional de Aprendizaje (SENA) · Análisis y Desarrollo de Software (ADSO) · Ficha 3413974**  
-> **Desarrollador:** Kevin ([`Kevin81A`](https://github.com/Kevin81A))  
-> **Stack Implementado:** PHP 8.2 (Laravel 11) + React 18 (TypeScript + Vite) + MySQL 8.4 LTS + Docker Compose  
-
----
-
-## 📌 Documentación Maestra y Entrega Técnica
-Para consultar el informe completo con diagramas Mermaid (Arquitectura Onion, Modelo Entidad-Relación y Diagrama de Secuencia con Bloqueo Optimista), consulte:  
-👉 **[ENTREGA-TECNICA.md](ENTREGA-TECNICA.md)**
+> **Spec-Driven Development (SDD) Technical Benchmark**  
+> **National Learning Service (SENA) · Software Analysis and Development (ADSO) · Class 3413974**  
+> **Developer:** Kevin ([`Kevin81A`](https://github.com/Kevin81A))  
+> **Production Stack:** PHP 8.2 (Laravel 11) + React 18 (TypeScript + Vite) + MySQL 8.4 LTS + Docker Compose  
 
 ---
 
-## 1. ¿Qué es este repositorio y qué rol cumple en Simple Stock Flow?
+## 📌 Master Technical Documentation
+For the complete technical report featuring Mermaid diagrams (Onion Architecture, ER Model, Sequence Flow) and requirement traceability, see:  
+👉 **[TECHNICAL-DELIVERY.md](TECHNICAL-DELIVERY.md)**
 
-Este repositorio es el **Monorepo Unificado** que consolida los 6 componentes de *Simple Stock Flow* en un único espacio de trabajo estructurado y directamente ejecutable:
+---
 
-```
+## 1. What is this repository and what role does it play in Simple Stock Flow?
+
+This repository is the **Unified Monorepo** consolidating all 6 components of *Simple Stock Flow* into a single, cohesive, and directly executable codebase:
+
+```text
 test-simple-stock-flow/
-├── docker-compose.yml          # Orquestación raíz (1 comando para levantar todo)
-├── docker-compose.dev.yml      # Configuración de puertos de desarrollo
-├── .env.example                # Variables de entorno preconfiguradas
-├── verify.sh / verify.ps1      # Scripts de validación de sondas P-01 a P-42
-├── ENTREGA-TECNICA.md          # Informe técnico con diagramas y trazabilidad
+├── docker-compose.yml          # Root orchestration (1 command to start all services)
+├── docker-compose.dev.yml      # Local development port mapping
+├── .env.example                # Pre-configured environment variables
+├── verify.sh / verify.ps1      # Automated test suites for probes P-01 through P-42
+├── TECHNICAL-DELIVERY.md       # Master technical architecture & compliance report
 │
-├── api/                        # Backend REST (Laravel 11 / PHP 8.2) - Arquitectura Onion pura
-├── app/                        # Frontend SPA (React 18 + TypeScript + Vite) servido por Nginx
-├── infra/                      # Configuración de infraestructura y contenedores
-├── docs/                       # Especificación original SDD (Python / .NET), ADRs y constitución
-├── page/                       # Sitio público estático de presentación responsivo (cero llamadas API)
-└── tool/                       # Herramienta CLI en Python para sembrado idempotente vía API
+├── api/                        # REST Backend (Laravel 11 / PHP 8.2) - Pure Onion Architecture
+├── app/                        # Frontend SPA (React 18 + TypeScript + Vite) served via Nginx
+├── infra/                      # Infrastructure assets and environment definitions
+├── docs/                       # Original SDD specifications (Python / .NET), ADRs & constitution
+├── page/                       # Responsive static public landing page (zero API calls)
+└── tool/                       # Python CLI seeder tool for idempotent demo data population
 ```
 
 ---
 
-## 2. ¿Cómo se ejecuta localmente? (Guía Rápida)
+## 2. How to run the project locally? (Quickstart)
 
-### Con Docker Compose (Un solo comando)
-El repositorio raíz contiene el archivo `docker-compose.yml` listo para construir y levantar todo el ecosistema:
+### With Docker Compose (Recommended - Single Command)
+The root `docker-compose.yml` builds and orchestrates the full ecosystem out of the box:
 
 ```bash
-# 1. Clonar el monorepo
+# 1. Clone the monorepo
 git clone https://github.com/Kevin81A/test-simple-stock-flow.git
 cd test-simple-stock-flow
 
-# 2. Levantar los contenedores en segundo plano
+# 2. Start services in the background
 docker compose up -d --build
 
-# 3. Comprobar el estado de salud de los servicios
+# 3. Check container health status
 docker compose ps
 ```
 
-#### Puntos de Acceso del Sistema
-- **Aplicación Web (SPA en React):** [http://localhost:8080](http://localhost:8080)
-- **API REST (Laravel):** [http://localhost:8000](http://localhost:8000)
-- **Sonda de Salud (Healthcheck):** [http://localhost:8000/health](http://localhost:8000/health)
-- **Página Pública Estática:** Abrir `page/index.html` en el navegador.
+#### Application Endpoints
+- **Web Application (React SPA):** [http://localhost:8080](http://localhost:8080)
+- **REST API (Laravel 11):** [http://localhost:8000](http://localhost:8000)
+- **Healthcheck Probe:** [http://localhost:8000/health](http://localhost:8000/health)
+- **Static Landing Page:** Open `page/index.html` in your browser.
 
-#### Credenciales de Acceso Iniciales
-- **Rol Administrador:** Usuario `admin@stockflow.com` (o `admin`) / Contraseña `Admin12345!`
-- **Rol Vendedor:** Creado desde el panel `/vendedores/nuevo` por un administrador (DP-04).
+#### Initial Credentials
+- **Administrator Role:** Username `admin@stockflow.com` (or `admin`) / Password `Admin12345!`
+- **Seller Role:** Registered via `/vendedores/nuevo` by an authenticated administrator (enforcing DP-04).
 
 ---
 
-## 3. Variables de entorno requeridas
+## 3. Required Environment Variables
 
-El archivo `.env.example` en la raíz contiene las claves preconfiguradas:
+The `.env.example` file in the root provides default configurations:
 
-| Variable | Descripción | Valor por Defecto |
+| Variable | Description | Default Value |
 |---|---|---|
-| `DB_ROOT_PASSWORD` | Contraseña root del motor MySQL | `rootsecret` |
-| `DB_DATABASE` | Base de datos del sistema | `stockflow` |
-| `DB_USERNAME` | Usuario de base de datos | `stockflow` |
-| `DB_PASSWORD` | Contraseña del usuario MySQL | `stockflowpass` |
-| `JWT_SIGNING_KEY` | Clave secreta simétrica HS256 | `super_secret_jwt_key_stock_flow_2026_adso_3413974` |
-| `ADMIN_EMAIL` | Correo del administrador inicial | `admin@stockflow.com` |
-| `ADMIN_PASSWORD` | Contraseña del administrador inicial | `Admin12345!` |
+| `DB_ROOT_PASSWORD` | MySQL root database password | `rootsecret` |
+| `DB_DATABASE` | Database name | `stockflow` |
+| `DB_USERNAME` | Application database user | `stockflow` |
+| `DB_PASSWORD` | Application database password | `stockflowpass` |
+| `JWT_SIGNING_KEY` | Symmetric HS256 secret key | `super_secret_jwt_key_stock_flow_2026_adso_3413974` |
+| `ADMIN_EMAIL` | Initial administrator email | `admin@stockflow.com` |
+| `ADMIN_PASSWORD` | Initial administrator password | `Admin12345!` |
 
-*Nota (Artículo IX): En producción no se aceptan valores por defecto.*
+*Security Notice (Article IX): In production environments, secrets must not use default values.*
 
 ---
 
-## 4. ¿Cómo se ejecutan las pruebas y validación?
+## 4. How are tests and automated verification executed?
 
-El repositorio incluye suites de validación automatizada de las sondas P-01 a P-42:
+The repository includes cross-platform automated test suites testing probes P-01 through P-42:
 
-### En Linux / macOS / Git Bash:
+### On Linux / macOS / Git Bash:
 ```bash
 ./verify.sh
 ```
 
-### En Windows (PowerShell):
+### On Windows (PowerShell):
 ```powershell
 .\verify.ps1
 ```
 
-### Pruebas Unitarias del Backend (Laravel):
+### Backend Automated Unit Tests (PHPUnit):
 ```bash
 docker compose exec api php artisan test
 ```
 
-### Sembrado de Datos de Demostración (Opcional):
+### Seeding Demo Data (Optional):
 ```bash
 cd tool
 docker build -t ssf-tool .
@@ -110,29 +110,28 @@ docker run --rm --network host ssf-tool seed
 
 ---
 
-## 5. Decisiones técnicas relevantes tomadas durante la implementación
+## 5. Key Technical Decisions Made During Implementation
 
-1. **Monorepo Unificado para Máxima Facilidad de Evaluación:**
-   - Permite al evaluador clonar un único repositorio de GitHub y levantar todo el sistema con `docker compose up -d --build`, eliminando la necesidad de gestionar 6 clones separados o lidiar con dependencias rotas de rutas relativas.
-2. **Arquitectura Onion Pura en Backend (Artículo I):**
-   - El núcleo `api/app/Domain` está programado en PHP 8.2 puro, completamente desacoplado de Laravel y Eloquent.
-3. **Persistencia MySQL con Bloqueo Optimista (RN-11 / 409):**
-   - Manejo de condiciones de carrera con columna de versión y 3 reintentos automáticos en el caso de uso de registro de ventas.
-4. **Respuestas de Error Conformantes a la Invariante D-C9:**
-   - Códigos 401, 403, 404 y 405 retornan con cuerpo vacío (`Content-Length: 0`).
-   - Errores 400 y 422 utilizan el estándar RFC 7807 (`application/problem+json`).
-5. **Independencia del Sitio Estático (`page/`):**
-   - El sitio público es 100% autónomo y responsivo, sin realizar llamadas de red a la API.
+1. **Unified Monorepo for Evaluation Ergonomics:**
+   - Allows evaluators to clone one repository and launch the whole solution with `docker compose up -d --build`, eliminating sibling folder path friction.
+2. **Strict Onion Architecture in Backend (Article I):**
+   - Pure PHP 8.2 domain layer, completely decoupled from Eloquent and Laravel.
+3. **Optimistic Locking with Versioning (BR-11 / HTTP 409):**
+   - Concurrency resolution using version checks and up to 3 automatic retries during sale registration.
+4. **RFC 7807 & Invariant D-C9 Error Compliance:**
+   - 401, 403, 404, and 405 responses emit an empty body (`Content-Length: 0`). 400 and 422 return `application/problem+json`.
+5. **Decoupled Static Presentation Site (`page/`):**
+   - Independent HTML5 landing page with zero network coupling to the API.
 
 ---
 
-## 6. Repositorios Originales y Forks
+## 6. Sibling Repositories & Forks
 
-Este monorepo unifica los repositorios hermanos previamente sincronizados:
-* Monorepo Central: [https://github.com/Kevin81A/test-simple-stock-flow](https://github.com/Kevin81A/test-simple-stock-flow)
+This monorepo unifies the modular repositories previously synchronized:
+* Central Monorepo: [https://github.com/Kevin81A/test-simple-stock-flow](https://github.com/Kevin81A/test-simple-stock-flow)
 * Backend API: [https://github.com/Kevin81A/test-simple-stock-flow-api](https://github.com/Kevin81A/test-simple-stock-flow-api)
 * Frontend SPA: [https://github.com/Kevin81A/test-simple-stock-flow-app](https://github.com/Kevin81A/test-simple-stock-flow-app)
-* Infraestructura: [https://github.com/Kevin81A/test-simple-stock-flow-infra](https://github.com/Kevin81A/test-simple-stock-flow-infra)
-* Documentación: [https://github.com/Kevin81A/test-simple-stock-flow-docs](https://github.com/Kevin81A/test-simple-stock-flow-docs)
-* Sitio Estático: [https://github.com/Kevin81A/test-simple-stock-flow-page](https://github.com/Kevin81A/test-simple-stock-flow-page)
-* Herramienta CLI: [https://github.com/Kevin81A/test-simple-stock-flow-tool](https://github.com/Kevin81A/test-simple-stock-flow-tool)
+* Infrastructure: [https://github.com/Kevin81A/test-simple-stock-flow-infra](https://github.com/Kevin81A/test-simple-stock-flow-infra)
+* Documentation: [https://github.com/Kevin81A/test-simple-stock-flow-docs](https://github.com/Kevin81A/test-simple-stock-flow-docs)
+* Static Site: [https://github.com/Kevin81A/test-simple-stock-flow-page](https://github.com/Kevin81A/test-simple-stock-flow-page)
+* CLI Tool: [https://github.com/Kevin81A/test-simple-stock-flow-tool](https://github.com/Kevin81A/test-simple-stock-flow-tool)
